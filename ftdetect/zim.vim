@@ -11,5 +11,7 @@ endfunction
 
 
 augroup Zim
-au BufNewFile,BufRead *.txt call Ftdetect_zim()
+for s:ext in get(g:, 'zim_note_extensions', ['txt'])
+  exe 'au BufNewFile,BufRead *.'.s:ext.'call Ftdetect_zim()'
+endfor
 augroup END

@@ -1,6 +1,7 @@
 function! zim#note#getFilenameFromName(name)
   let l:fname=substitute(a:name,'\([ !?:\*]\)\+','_','g')
   let l:fname=substitute(l:fname,"'",'_','g')
+  "" FIXME .txt to multiple ext
   let l:fname=substitute(l:fname,'\(\.txt\)\?$','.txt','g')
   return l:fname
 endfu
@@ -21,6 +22,7 @@ function! zim#note#Create(whereopen,dir,name)
   endif
 
   let l:note=a:dir.'/'.l:note_dir.'/'.zim#note#getFilenameFromName(l:note_name)
+  "" FIXME .txt to multiple ext
   if l:note !~ g:zim_notebooks_dir.'/.*/.*.txt'
     echomsg zim#util#gettext('note_out_of_notebook')
   else
@@ -40,6 +42,7 @@ function! zim#note#Create(whereopen,dir,name)
           if !isdirectory(g:zim_notebooks_dir.'/'.l:path)
             call mkdir(g:zim_notebooks_dir.'/'.l:path,'p', 0700)
           endif
+          "" FIXME .txt to multiple ext
           if !filereadable(g:zim_notebooks_dir.'/'.l:path.'.txt')
             call zim#note#Create(a:whereopen,g:zim_notebooks_dir,l:path)
           endif
@@ -131,8 +134,10 @@ endfunction
 
 "" Move a note and its sub notes
 function! zim#note#Move(copy,src,tgt)
+  "" FIXME txt to multiple ext
   let l:src_dir=g:zim_notebook.'/'.substitute(a:src,'\(/\|\.txt\)$','','')
   let l:src_name=substitute(l:src_dir,'.*/\([^/]\)','\1','')
+  "" FIXME txt to multiple ext
   let l:src_file=l:src_dir.'.txt'
   let l:tgt=substitute(a:tgt,'\([ :\*]\)\+','_','g').( a:tgt =~ '/$' ? l:src_name : '')
   let l:tgt_dir=g:zim_notebook.'/'.substitute(l:tgt,'\(/\|\.txt\)$','','')
@@ -157,6 +162,7 @@ function! zim#note#Move(copy,src,tgt)
     let l:path=l:notebook
     for l:i in l:dirs
       let l:path.='/'.l:i
+      "" FIXME txt to multiple ext
       if !filereadable(g:zim_notebooks_dir.'/'.l:path.'.txt')
         call zim#explorer#CreateNote(g:zim_notebooks_dir,l:path)
       endif

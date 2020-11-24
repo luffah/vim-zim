@@ -30,6 +30,8 @@
 "   * Add [>] moved checkbox
 "   * Now conceal url link (to only see the title)
 "   * Can fill a note from a web page.
+" 2020-07-21 - luffah - v1.3
+"   * Add variable g:zim_note_extensions to define additionnal extensions
 "
 " What This Plugin Does: 
 " * Provides shortcuts and helpful mappings to work with Zim wiki formatting.
@@ -304,6 +306,10 @@ endif
 
 "" Zim Wiki format : to be change if wiki format change...
 let g:zim_wiki_version=get(g:,'zim_wiki_version','0.4')
+
+""" Files extensions for a Zim note
+let g:zim_note_extensions=get(g:,'zim_note_extensions', ['txt'])
+let g:zim_note_extension=get(g:,'zim_note_extension', g:zim_note_extensions[0])
 
 """ Configuration dir of Zim
 let g:zim_config_dir=get(g:,'zim_config_dir','')

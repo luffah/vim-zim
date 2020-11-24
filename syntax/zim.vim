@@ -56,15 +56,6 @@ try
 catch 
   syn match Title /^\(=\{1,6}\)[^=].*\1$/
 endtry
-"🆚 ⍈ 🆙 🆓 🆗 🆔 🆕 😞😚😰😱
-if has('gui')
-  let g:zim_emochars={'Checkbox': '😰', 'CheckboxYes': '😊', 'CheckboxNo': '😞', 'CheckboxMoved': '😴'}
-endif
-if exists('g:zim_emochars')
-for s:i in keys(g:zim_emochars)
-  exe 'syn match zimConcealElt'.s:i.' /\(\t\|    \)\(\[\)\@=/ conceal transparent contained cchar='.g:zim_emochars[s:i]
-endfor
-endif
 
 " Checkbox
 syn match zimEltCheckbox /^\( \{4}\|\t\)*\[[ ]\]\(\s\|$\)/me=e-1 contains=zimConcealEltCheckbox,zimTab
@@ -184,15 +175,12 @@ hi link zimStyleHorizontalLine Underlined
 "" --------------------
 " Bonus
 syn match vimModeline +\(/\*\s*vim\s*:.*\*/\|//\s*vim\s*:.*\)+
-syn match zimInlineArrowChar /\( \)\@<=\(-->\)\( \)\@=/ conceal cchar=→ transparent
-" a way to hide things ...()... or …()… or –()–
-syn region zimInlineHiddenText start=/\z([…–]\|\.\.\.\)[(]/ end=/[)]\z1/ conceal cchar=…  transparent excludenl
 
 " IdentedDetails 
-syn region zimwikiIndentedCheckboxDetails start=/^\z(\( \{4\}\|\t\)*\)\(\[[x*]\]\)[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\z1\?\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,zimInline.*,zimwikiIndentedCheckboxDetails,zimwikiIndentedDetails fold transparent
-syn region zimwikiIndentedDetails start=/^\S[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,zimInline.* fold transparent
-"syn region zimIndentedfold start=/^\( \{4,\}\|\t\)\S/ end=/^\s\{0,3\}\S/me=s-1 contained fold transparent contains=zimElt.*,zimStyle.*,zimInline.*
-"syn region zimwikiIndentedDetails start=/^\( \{4\}|\t\)*\(\[.\]\)\?[_a-z 0-9]*:/ end=/^\s\{0,3\}\S/me=s-1 contains=zimIndentedFold,zimElt.*,zimStyle.*,zimInline.* transparent
+syn region zimwikiIndentedCheckboxDetails start=/^\z(\( \{4\}\|\t\)*\)\(\[[x*]\]\)[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\z1\?\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,zimwikiIndentedCheckboxDetails,zimwikiIndentedDetails fold transparent
+syn region zimwikiIndentedDetails start=/^\S[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.* fold transparent
+"syn region zimIndentedfold start=/^\( \{4,\}\|\t\)\S/ end=/^\s\{0,3\}\S/me=s-1 contained fold transparent contains=zimElt.*,zimStyle.*
+"syn region zimwikiIndentedDetails start=/^\( \{4\}|\t\)*\(\[.\]\)\?[_a-z 0-9]*:/ end=/^\s\{0,3\}\S/me=s-1 contains=zimIndentedFold,zimElt.*,zimStyle.* transparent
 
 "" --------------------
 " Finalize

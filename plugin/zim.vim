@@ -74,7 +74,7 @@ if (!get(g:,'zim_dev',0) && get(g:,'loaded_zim',0)) || &cp | finish | endif
 "
 command! ZimSelectNotebook :call zim#explorer#SelectNotebook('split')
 command! ZimCreateHeader :call zim#editor#CreateHeader()
-command! -nargs=* ZimGrep :call zim#explorer#SearchTermInNotebook(<q-args>)
+command! -nargs=* ZimGrep :silent! call zim#explorer#SearchTermInNotebook(<q-args>)
 command! -nargs=* -complete=customlist,zim#util#_CompleteNotes ZimNewNote :call zim#note#Create('rightbelow vertical split',g:zim_notebook,<q-args>)
 command! -nargs=* -complete=customlist,zim#util#_CompleteNotes ZimOpen :call zim#util#open('rightbelow vertical split',g:zim_notebook,<q-args>)
 command! -nargs=* -complete=customlist,zim#util#_CompleteNotes ZimList :call zim#explorer#List('tabnew',g:zim_notebook,<q-args>)

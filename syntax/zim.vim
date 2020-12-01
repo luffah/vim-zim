@@ -41,12 +41,12 @@ hi link zimHeaderParam TabLine
 " Titles (h1 to h5)
 try
   silent hi markdownH1
-  syn match Title1 /^\(=\{6}\)[^=].*\1$/
-  syn match Title2 /^\(=\{5}\)[^=].*\1$/
-  syn match Title3 /^\(=\{4}\)[^=].*\1$/
-  syn match Title4 /^\(=\{3}\)[^=].*\1$/
-  syn match Title5 /^\(=\{2}\)[^=].*\1$/
-  syn match Title6 /^\(=\{1}\)[^=].*\1$/
+  syn match Title1 /^\s*\(=\{6}\)[^=].*\1\s*$/
+  syn match Title2 /^\s*\(=\{5}\)[^=].*\1\s*$/
+  syn match Title3 /^\s*\(=\{4}\)[^=].*\1\s*$/
+  syn match Title4 /^\s*\(=\{3}\)[^=].*\1\s*$/
+  syn match Title5 /^\s*\(=\{2}\)[^=].*\1\s*$/
+  syn match Title6 /^\s*\(=\{1}\)[^=].*\1\s*$/
   hi link Title1 markdownH1
   hi link Title2 markdownH2
   hi link Title3 markdownH3
@@ -54,7 +54,7 @@ try
   hi link Title5 markdownH5
   hi link Title6 markdownH6
 catch 
-  syn match Title /^\(=\{1,6}\)[^=].*\1$/
+  syn match Title /^\s*\(=\{1,6}\)[^=].*\1\s*$/
 endtry
 
 " Checkbox
@@ -177,8 +177,8 @@ hi link zimStyleHorizontalLine Underlined
 syn match vimModeline +\(/\*\s*vim\s*:.*\*/\|//\s*vim\s*:.*\)+
 
 " IdentedDetails 
-syn region zimwikiIndentedCheckboxDetails start=/^\z(\( \{4\}\|\t\)*\)\(\[[x*]\]\)[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\z1\?\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,zimwikiIndentedCheckboxDetails,zimwikiIndentedDetails fold transparent
-syn region zimwikiIndentedDetails start=/^\S[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.* fold transparent
+syn region zimwikiIndentedCheckboxDetails start=/^\z(\( \{4\}\|\t\)*\)\(\[[x*]\]\)[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\z1\?\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,Title.*,zimwikiIndentedCheckboxDetails,zimwikiIndentedDetails fold transparent
+syn region zimwikiIndentedDetails start=/^\S[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,Title.* fold transparent
 "syn region zimIndentedfold start=/^\( \{4,\}\|\t\)\S/ end=/^\s\{0,3\}\S/me=s-1 contained fold transparent contains=zimElt.*,zimStyle.*
 "syn region zimwikiIndentedDetails start=/^\( \{4\}|\t\)*\(\[.\]\)\?[_a-z 0-9]*:/ end=/^\s\{0,3\}\S/me=s-1 contains=zimIndentedFold,zimElt.*,zimStyle.* transparent
 

@@ -40,6 +40,7 @@ function! zim#editor#Title()
   let l:i=line('.')
   let l:l=getline(l:i)
   let l:rec=0 " 0 -> nothing ; 1 -> do update and rec; 2 -> only do update
+  let l:spaces=substitute(l:l, '\S.*$','','')
   if l:l =~ '^\s*\(=\)\+ '
     let l:pos=match(l:l,'=')
     let l:end=match(l:l,' ',l:pos)
@@ -53,7 +54,7 @@ function! zim#editor#Title()
   let l:l=substitute(l:l, l:anystyle_before,'','') 
   let l:l=substitute(l:l, l:anystyle_after,'','')
   let l:titlemark=repeat("=",(7-l:lvl))
-  let l:l=l:titlemark.' '.l:l.' '.l:titlemark
+  let l:l=l:spaces.l:titlemark.' '.l:l.' '.l:titlemark
   call setline(l:i,l:l)
   redraw
   echomsg zim#util#gettext("title_level")." ? "
@@ -83,7 +84,7 @@ function! zim#editor#Title()
     let l:l=substitute(l:l, l:anystyle_before,'','') 
     let l:l=substitute(l:l, l:anystyle_after,'','')
     let l:titlemark=repeat("=",(7-l:lvl))
-    let l:l=l:titlemark.' '.l:l.' '.l:titlemark
+    let l:l=l:spaces.l:titlemark.' '.l:l.' '.l:titlemark
     call setline(l:i,l:l)
     redraw
   endif

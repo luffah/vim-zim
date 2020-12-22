@@ -41,12 +41,12 @@ hi link zimHeaderParam TabLine
 " Titles (h1 to h5)
 try
   silent hi markdownH1
-  syn match Title1 /^\s*\(=\{6}\)[^=].*\1\s*$/
-  syn match Title2 /^\s*\(=\{5}\)[^=].*\1\s*$/
-  syn match Title3 /^\s*\(=\{4}\)[^=].*\1\s*$/
-  syn match Title4 /^\s*\(=\{3}\)[^=].*\1\s*$/
-  syn match Title5 /^\s*\(=\{2}\)[^=].*\1\s*$/
-  syn match Title6 /^\s*\(=\{1}\)[^=].*\1\s*$/
+  syn match Title1 /^\s*\(=\{6}\)[^=].*\1\s*$/ contains=Todo
+  syn match Title2 /^\s*\(=\{5}\)[^=].*\1\s*$/ contains=Todo
+  syn match Title3 /^\s*\(=\{4}\)[^=].*\1\s*$/ contains=Todo
+  syn match Title4 /^\s*\(=\{3}\)[^=].*\1\s*$/ contains=Todo
+  syn match Title5 /^\s*\(=\{2}\)[^=].*\1\s*$/ contains=Todo
+  syn match Title6 /^\s*\(=\{1}\)[^=].*\1\s*$/ contains=Todo
   hi link Title1 markdownH1
   hi link Title2 markdownH2
   hi link Title3 markdownH3
@@ -54,7 +54,7 @@ try
   hi link Title5 markdownH5
   hi link Title6 markdownH6
 catch 
-  syn match Title /^\s*\(=\{1,6}\)[^=].*\1\s*$/
+  syn match Title /^\s*\(=\{1,6}\)[^=].*\1\s*$/ contains=Todo
 endtry
 
 " Checkbox
@@ -98,6 +98,10 @@ hi link zimStyleStrikethrough NonText
 " url link
 syn match   zimEltUrl '\(^\|\s\)\(www\.\|https\?:\/\/\)\S\+\c' contains=@NoSpell
 hi def link zimEltUrl Tag
+
+" tags
+syn match   zimEltTag '\(^\|\s\)\(@[a-zA-Z-_]\+\)\c' contains=@NoSpell
+hi def link zimEltTag Identifier
 
 syn match   zimEltFile '\(^\|\s\)\([.~]*\)\(/[^ /&|^[\]]\+\)\+' contains=@NoSpell
 hi def link zimEltFile diffNewFile

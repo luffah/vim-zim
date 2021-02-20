@@ -100,7 +100,7 @@ syn match   zimEltUrl '\(^\|\s\)\(www\.\|https\?:\/\/\)\S\+\c' contains=@NoSpell
 hi def link zimEltUrl Tag
 
 " tags
-syn match   zimEltTag '\(^\|\s\)\(@[a-zA-Z-_]\+\)\c' contains=@NoSpell
+syn match   zimEltTag '\(^\|\s\)\(@[a-zA-Z-_0-9]\+\)\c' contains=@NoSpell
 hi def link zimEltTag Identifier
 
 syn match   zimEltFile '\(^\|\s\)\([.~]*\)\(/[^ /&|^[\]]\+\)\+' contains=@NoSpell

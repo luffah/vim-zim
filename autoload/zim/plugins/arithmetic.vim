@@ -27,7 +27,7 @@ fu! zim#plugins#arithmetic#processfile(...)
   else
     let l:buf=l:curbuf
   endif
-  let l:pyfile=g:zim_python_path.'/inc/arithmetic.py'
+  let l:pyfile=zim#plugin#get_zim_src_dir().'/inc/arithmetic.py'
   if filereadable(l:pyfile)
     if l:curbuf != l:buf
       call execute('buffer '.l:buf)

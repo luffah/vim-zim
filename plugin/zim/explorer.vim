@@ -27,16 +27,46 @@ function! zim#explorer#getLine()
   return l:l
 endfunction
 
-function! zim#explorer#interactiveMove()
+function! zim#explorer#interactiveSelect()
   let l:moving_tgt=zim#explorer#getLine()
+  let l:selected_ids = get(b:, 'selected_ids', [])
+  setlocal modifiable
+
   if len(b:current_id)
-    if b:moving_id == '' 
-      if b:current_id =~ '.*\.txt$'
-        let b:moving_id=b:current_id
+    if b:current_id =~ '.*\.\(txt\|log\|js\|py\|xml\|css\)$'
+      " FIXME test is not dir
+      let l:idx=index(l:selected_ids, b:current_id)
+      if l:idx != -1
+        call remove(b:selected_ids, l:idx)
+        call setline(line('.'), substitute(getline('.'), ' | SELECTED ', '', ''))
+      else
+        call setline(line('.'), getline('.').' | SELECTED ')
+        if !exists('b:selected_ids')
+          let l:head=s:_explorer_selected_cmd_info()
+          call append(b:first_line - 3, l:head)
+          let b:first_line+=len(l:head)
+        endif
+        let b:selected_ids=(l:selected_ids + [b:current_id])
+      endif
+    endif
+  endif
+  setlocal nomodifiable
+endfunction
+
+function! zim#explorer#interactiveMove(inside)
+  let l:moving_tgt=zim#explorer#getLine()
+  let l:selected_ids = get(b:, 'selected_ids', [])
+  if len(b:current_id) && len(l:selected_ids)
+    if a:inside == 1
+      let l:moving_tgt=substitute(l:moving_tgt,'.\(txt\|zim\)$', '', '')
+      if !isdirectory(l:moving_tgt)
+        call mkdir(l:moving_tgt,'p', 0700)
       endif
     else
       let l:moving_tgt=substitute(l:moving_tgt,'/[^/]*\.\(txt\|zim\)$','','')
-      let l:src_file=g:zim_notebook.'/'.b:moving_id
+    endif
+    for l:file_id in b:selected_ids
+      let l:src_file=g:zim_notebook.'/'.l:file_id
       let l:src_dir=substitute(l:src_file,'\.txt$','','')
       let l:src_name=substitute(l:src_dir,'.*/\([^/]\)','\1','')
       let l:tgt_dir=l:moving_tgt.'/'.l:src_name
@@ -50,11 +80,11 @@ function! zim#explorer#interactiveMove()
         endif
         silent call zim#util#move(l:src_file,l:tgt_file,0,0)
       endif
-      let b:moving_id=''
-    endif
+    endfor
+    unlet b:selected_ids
+    call zim#explorer#ListUpdate()
+    redraw!
   endif
-  call zim#explorer#ListUpdate()
-  redraw!
 endfunction
 
 function! zim#explorer#interactiveRename()
@@ -68,14 +98,19 @@ function! zim#explorer#interactiveRename()
   silent call zim#explorer#ListUpdate()
 endfunction
 
-function! zim#explorer#interactiveNewNote(whereopen)
+function! zim#explorer#interactiveNewNote(inside, whereopen)
   let l:curwin=win_getid()
   call zim#explorer#getLine()
   if len(b:current_id)
       let l:tgt=substitute(b:current_id,'\.\(txt\|zim\)$','','')
       let l:tgttab=split(l:tgt, '/')
-      let l:sug=l:tgttab[-1]
-      let l:tgt=join(l:tgttab[0:-2],'/')
+      if a:inside
+        let l:sug=""
+        let l:tgt=join(l:tgttab,'/')
+      else
+        let l:sug=l:tgttab[-1]
+        let l:tgt=join(l:tgttab[0:-2],'/')
+      endif
       " let l:tgt=substitute(b:current_id,'/[^/]*\.\(txt\|zim\)$','','')
       let l:note_name=input( zim#util#gettext('note_name').' ? ',l:sug, 'customlist,zim#util#_CompleteNotes' )
       call zim#note#Create(a:whereopen,g:zim_notebook,l:tgt.'/'.l:note_name) 
@@ -96,14 +131,17 @@ function! zim#explorer#List(whereopen,dir,...)
   endif
   enew | set buftype=nowrite ft=zimindex | setlocal nowrap cursorline 
   let b:dir=a:dir | let b:filter=l:filter | let b:detect_doubles=0 
-  let b:current_id='' | let b:moving_id=''
+  let b:current_id=''
   "" Openning the file in a vertical new split (vnew) on Return:
   nnoremap <silent> <buffer> <cr> :call zim#util#open('','', 1, zim#explorer#getLine())<cr>
   nnoremap <silent> <buffer> <space> :call zim#util#open((len(tabpagebuflist())>1?'wincmd w':'vertical rightbelow split'),'', 0,zim#explorer#getLine())<cr>
   nnoremap <silent> <buffer> u  :call zim#explorer#getLine()<bar>call zim#explorer#ListUpdate()<cr>
   nnoremap <silent> <buffer> d  :call zim#explorer#getLine()<bar>let b:detect_doubles=!b:detect_doubles<bar>call zim#explorer#ListUpdate() <cr>
-  nnoremap <buffer> m    :call zim#explorer#interactiveMove()<cr>
-  nnoremap <buffer> N    :call zim#explorer#interactiveNewNote('rightbelow vertical split')<cr>
+  nnoremap <buffer> s    :call zim#explorer#interactiveSelect()<cr>
+  nnoremap <buffer> m    :call zim#explorer#interactiveMove(0)<cr>
+  nnoremap <buffer> M    :call zim#explorer#interactiveMove(1)<cr>
+  nnoremap <buffer> N    :call zim#explorer#interactiveNewNote(0, 'rightbelow vertical split')<cr>
+  nnoremap <buffer> I    :call zim#explorer#interactiveNewNote(1, 'rightbelow vertical split')<cr>
   nnoremap <buffer> R    :call zim#explorer#interactiveRename()<cr>
   nnoremap <buffer> D    :if(input(zim#util#gettext('Delete note').'[Y/n]') !~ "^[Nn]") <bar> call system('rm '.zim#explorer#getLine()) <bar> endif <bar> call zim#explorer#ListUpdate()<cr>
   exe "nnoremap <buffer> f    :silent call zim#explorer#getLine()<bar>let b:filter=input('".zim#util#gettext('Change filter :')."') <bar> call zim#explorer#ListUpdate()<cr>"
@@ -136,19 +174,14 @@ function! zim#explorer#getNotesList(dir,filter,detect_doubles)
   let l:ret=[]
   for l:i in split(globpath(a:dir,'*'),"\n")
       if isdirectory(l:i)
-"        if !(empty(b:moving_id))
-"          call add(l:ret, substitute(substitute(l:i,g:zim_notebook.'/*','','')
-"                \, '/', ' : ', 'g'))
-"          let b:line_count+=1
-"        endif
         call extend(l:ret ,zim#explorer#getNotesList(l:i,a:filter,0))
       else
         let l:i=substitute(l:i,g:zim_notebook.'/*','','')
         if b:current_id == l:i
           let b:selected_idx_in_list=b:line_count
         endif
-        if b:moving_id == l:i
-          call add(l:ret, substitute(l:i.' | MOVING ', '/', ' : ', 'g'))
+        if index(get(b:, 'selected_ids', []), l:i) != -1
+          call add(l:ret, substitute(l:i.' | SELECTED ', '/', ' : ', 'g'))
           let b:line_count+=1
         elseif  l:i =~ a:filter
           call add(l:ret, substitute(l:i, '/', ' : ', 'g'))
@@ -175,6 +208,11 @@ function! zim#explorer#getNotesList(dir,filter,detect_doubles)
   return l:ret
 endfunction
 
+function! s:_explorer_selected_cmd_info()
+  return [
+        \  "m   M    -> ".zim#util#gettext('Move note aside / inside'),
+        \ ]
+endfunction
 
 "" List all notes / if a filter (or a regex) is provided 
 "" only list the notes corresponding to the filter
@@ -190,18 +228,23 @@ function! zim#explorer#ListUpdate()
     let l:note_list=zim#explorer#getNotesList(b:dir, b:filter, b:detect_doubles)
     let l:head=[
           \  '<-- Zim --> '.b:dir.' % '.b:filter, 
-          \  '<cr>     -> '.zim#util#gettext('Open note'),
-          \  '<space>  -> '.zim#util#gettext('Preview'),
-          \  'u        -> '.zim#util#gettext('Update view'),
-          \  'f        -> '.zim#util#gettext('Modify filter'),
-          \  'd        -> '.(b:detect_doubles ? printf(zim#util#gettext('Disable doubles detection (%d founds)'), b:nb_doubles) : zim#util#gettext('Detect doubles names')) ] + 
+          \  "<cr>     -> ".zim#util#gettext('Open note'),
+          \  "<space>  -> ".zim#util#gettext('Preview'),
+          \  "u        -> ".zim#util#gettext('Update view'),
+          \  "f        -> ".zim#util#gettext('Modify filter'),
+          \  "d        -> ".(b:detect_doubles ? printf(zim#util#gettext('Disable doubles detection (%d founds)'), b:nb_doubles) : zim#util#gettext('Detect doubles names')) ] + 
           \ ( b:nb_doubles ? [  'n        -> '.zim#util#gettext('Find next double') ] : [] )
           \ + [
-          \  'D        -> '.zim#util#gettext('Delete note') ,
-          \  'N        -> '.zim#util#gettext('Create note') ,
-          \  'm        -> '.(empty(b:moving_id) ? zim#util#gettext('Move note under cursor') : printf(zim#util#gettext('Place the note under cursor (moving %s)'),b:moving_id)), 
-          \  'R        -> '.zim#util#gettext('Rename note under cursor') ,
-          \  'q        -> '.zim#util#gettext('Close this window'),
+          \  "D        -> ".zim#util#gettext('Delete note') ,
+          \  "N  I     -> ".zim#util#gettext('Create note aside / inside') ,
+          \  "R        -> ".zim#util#gettext('Rename note under cursor') ,
+          \  "s        -> ".zim#util#gettext('Select note'), 
+          \ ]
+    if len(get(b:, 'selected_ids', []))
+      let l:head+=s:_explorer_selected_cmd_info()
+    endif
+    let l:head+=[
+          \  "q        -> ".zim#util#gettext('Close this window'),
           \  '-------- -> -------------------------------'] 
     %delete
     call setline(1,

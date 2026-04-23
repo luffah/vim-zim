@@ -18,25 +18,33 @@ endfu
 
 
 "" Completion function for commands
-function! zim#util#_CompleteNotes(A,L,P)
-  if a:A =~ '^/'
-    if a:A =~ '^'.g:zim_notebook
-      if mode() == 'c'
-        call feedkeys('e"'.substitute(a:L, g:zim_notebook.'/', '', '').'"')
-      endif
-      let l:a=substitute(a:A,'^'.g:zim_notebook.'/','','')
-    else
-      if mode() == 'c'
-        call feedkeys(repeat("\b",len(a:A)))
-      endif
-      let l:a=''
-    endif
+function! zim#util#_CompleteNotes(A,L,P, ...)
+  let l:zim_notebook = get(a:000, 0, g:zim_notebook)
+  let l:dir=substitute(l:zim_notebook,'[/]*$','/','')
+  let l:curfile=expand('%:p')
+  if len(a:A) == 0 && stridx(l:curfile, l:zim_notebook) > -1
+    let l:a=substitute(expand('%:p'), '.txt', '', '')
+    let l:files=[l:a]
   else
-    let l:a=a:A
+    if a:A =~ '^/'
+      if a:A =~ '^'.l:zim_notebook
+        if mode() == 'c'
+          call feedkeys('e"'.substitute(a:L, l:zim_notebook.'/', '', '').'"')
+        endif
+        let l:a=substitute(a:A,'^'.l:zim_notebook.'/','','')
+      else
+        if mode() == 'c'
+          call feedkeys(repeat("\b",len(a:A)))
+        endif
+        let l:a=''
+      endif
+    else
+      let l:a=a:A
+    endif
+    let l:files=globpath(l:dir, l:a.'*\c', 0, 1)
   endif
-  let l:dir=substitute(g:zim_notebook,'[/]*$','/','')
   return map(
-        \globpath(l:dir, l:a.'*\c', 0, 1),
+        \l:files,
         \'strpart(v:val,len(l:dir)).(isdirectory(v:val)?"/":"")'
         \)
 endfunction
@@ -120,8 +128,9 @@ function! zim#util#_CompleteEditCmdV(A,L,P)
   return len(a:A) ? filter(l:r, 'v:val =~ "'.a:A.'*\\c"') : l:r
 endfunction
 
-function! zim#util#_CompleteBook(A,L,P)
-  let l:a=substitute(a:A,'^'.g:zim_notebook,'','')
+function! zim#util#_CompleteBook(A,L,P, ...)
+  let l:zim_notebook = get(a:000, 0, g:zim_notebook)
+  let l:a=substitute(a:A,'^'.l:zim_notebook,'','')
   let l:dir=substitute(g:zim_notebooks_dir,'[/]*$','/','')
   return map(
         \filter(globpath(l:dir, l:a.'*\c', 0, 1),'isdirectory(v:val)'),
@@ -175,7 +184,7 @@ function! zim#util#line(goto_instrs, ...)
       if has_key(l:j, 'checkpoint') | let l:default=l:i | endif
       if has_key(l:j, 'get') | let l:mem[l:j['get']]=l:i | endif
       if has_key(l:j, 'set') | let l:i=l:mem[l:j['set']] | endif
-      if has_key(l:j, 'init') | let l:i=line(l:j['init']) | endif
+      if has_key(l:j, 'init') | let l:i=(line(l:j['init']) || 1) | endif
       if has_key(l:j, 'sens') | let l:step=(l:j['sens']==0?1:l:j['sens']) | endif
       if has_key(l:j, 'default') | let l:default=l:j['default'] | endif
     else

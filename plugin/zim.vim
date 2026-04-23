@@ -183,6 +183,19 @@ let g:zim_img_editor=get(g:,'zim_img_editor',['\..*$','xdg-open',1])
 let g:zim_ext_viewer=get(g:,'zim_ext_viewer',['\..*$','xdg-open',1])
 let g:zim_ext_editor=get(g:,'zim_ext_editor',['\..*$','xdg-open',1])
 "endif
+"
+
+" Alter <cfile> to adapt to links [[filename.txt|short description]]
+"                                                 ^  cursor
+" will allow to jump to filename.txt when having the cursor out of the
+" filename. (don't work by default if cursor after space)
+let g:zim_setup_isfname=get(g:, 'zim_setup_isfname', 1)
+
+" To allow the filename match to        [[filename.txt|short description]]
+" work with a word after space                              cursor ^
+" (default disabled, may take only the last word of the line if outside of the links)
+let g:zim_setup_isfname_with_space=get(g:, 'zim_setup_isfname_with_space', 0)
+
 ""
 " Actions and keymapping : how it works ?
 " 
@@ -396,10 +409,10 @@ let g:zim_wiki_prompt={
       \          'Cannot move a note into itself !': 'Impossible de déplacer une note dans elle-même !',
       \          'Find Next double': 'Atteindre le doublon suivant',
       \          'Delete note': 'Supprimer la note (irreversible)',
-      \          'Create note': 'Créer un nouvelle note à coté de la note sous le curseur',
+      \          'Create note aside / inside': "Créer un nouvelle note à coté /à l'interieur de la note sous le curseur",
       \          'Rename note under cursor': 'Renommer la note sous le curseur',
-      \          'Move note under cursor': 'Sélectionner la note pour déplacement',
-      \          'Place the note under cursor (moving %s)': 'Déplacer la note (%s) sélectionnée à coté de la note sous le curseur',
+      \          'Select note': 'Sélectionner la note',
+      \          'Move note aside / inside': "Déplacer chaque note sélectionnée à coté /à l'interieur de la note sous le curseur",
       \        }
       \}
 for s:i in keys(g:zim_matchable) 

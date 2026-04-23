@@ -215,6 +215,19 @@ function! s:setBufferSpecific()
           \'v': ":<C-r>=execute('norm gv')<Cr>ZimMatchPrev".s:el."<Cr>gv"
           \}
   endfor
+  if g:zim_setup_isfname
+    setlocal isfname+=\|
+    if g:zim_setup_isfname_with_space
+      setlocal isfname+=32
+      " if g:zim_setup_isfname_with_quotes
+      "   setlocal includeexpr=substitute(substitute(v:fname,'\|.\*$','',''),'^.\*[\ \'\'\"]','','')
+      " else
+        setlocal includeexpr=substitute(substitute(v:fname,'\|.\*$','','g'),'^.\*\ ','', '')
+      " endif
+    else
+      setlocal includeexpr=substitute(v:fname,'\|.\*$','','g')
+    endif
+  endif
 
   " add key mappings
   for l:k in keys(g:zim_edit_actions)

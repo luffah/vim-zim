@@ -21,6 +21,7 @@ elseif exists("b:current_syntax")
   finish
 endif
 
+let s:zim_wiki_fast_syntax=get(g:,'zim_wiki_fast_syntax', 1)
 
 " Force Lang spelling for each note (to system if 1)
 if get(g:,'zim_wiki_spelllang',0)
@@ -28,6 +29,17 @@ if get(g:,'zim_wiki_spelllang',0)
 endif
 
 " Zim Header
+if s:zim_wiki_fast_syntax
+
+  syn region zimHeaderRegion
+        \ start=/\%1l^\(Content-Type\|Wiki-Format\|Creation-Date\):\%1l\c/
+        \ end=/\%4l\([A-Z]*:.*\)\?\c/
+        \ fold keepend extend
+  hi link zimHeaderRegion LineNr
+  syn match Title /^\s*\(=\{1,6}\)[^=].*\1\s*$/ contains=Todo
+
+else
+
 syn match zimHeader /^[^:]*:/ contained contains=@NoSpell nextgroup=ZimHeaderParam
 syn match zimHeaderParam /.*/ contained contains=@NoSpell
 syn region zimHeaderRegion
@@ -57,15 +69,17 @@ catch
   syn match Title /^\s*\(=\{1,6}\)[^=].*\1\s*$/ contains=Todo
 endtry
 
+endif
+
 " Checkbox
 syn match zimEltCheckbox /^\( \{4}\|\t\)*\[[ ]\]\(\s\|$\)/me=e-1 contains=zimConcealEltCheckbox,zimTab
 syn match zimEltCheckboxYes /^\( \{4}\|\t\)*\[\*\]\(\s\|$\)/me=e-1 contains=zimConcealEltCheckboxYes,zimTab
 syn match zimEltCheckboxNo  /^\( \{4}\|\t\)*\[x\]\(\s\|$\)/me=e-1 contains=zimConcealEltCheckboxNo,zimTab
 syn match zimEltCheckboxMoved  /^\( \{4}\|\t\)*\[>\]\(\s\|$\)/me=e-1 contains=zimConcealEltCheckboxMoved,zimTab
-hi zimEltCheckbox gui=bold guifg=black guibg=#dcdcdc term=bold ctermfg=0 ctermbg=7
-hi zimEltCheckboxYes gui=bold guifg=#65B616 guibg=#dcdcdc term=standout ctermfg=2 ctermbg=15
-hi zimEltCheckboxNo  gui=bold guifg=#AF0000 guibg=#dcdcdc term=standout ctermfg=1 ctermbg=15
-hi zimEltCheckboxMoved gui=bold guifg=#AFAF00 guibg=#dcdcdc term=standout ctermfg=3 ctermbg=15
+hi! zimEltCheckbox gui=bold guifg=black guibg=#dcdcdc term=standout cterm=standout ctermfg=11 ctermbg=0
+hi! zimEltCheckboxYes gui=bold guifg=#65B616 guibg=#878787 term=standout cterm=standout  ctermfg=0 ctermbg=2
+hi! zimEltCheckboxNo  gui=bold guifg=#AF0000 guibg=#dcdcdc term=standout cterm=standout  ctermfg=0 ctermbg=1
+hi! zimEltCheckboxMoved gui=bold guifg=#AFAF00 guibg=#dcdcdc term=standout cterm=standout,bold  ctermfg=11 ctermbg=0
 "syn match zimTab '^\(  \)\+\(  \[\)'
 "hi def link zimTab Ignore
 
@@ -107,8 +121,8 @@ syn match   zimEltFile '\(^\|\s\)\([.~]*\)\(/[^ /&|^[\]]\+\)\+' contains=@NoSpel
 hi def link zimEltFile diffNewFile
 
 " Links
-syn match Identifier /\[\[[^[\]|]*\]\]/
-syn match zimEltLinks /\[\[[^[\]|]*|[^[\]|]*\]\]/ contains=zimEltUrlHiddenA,zimEltUrlHiddenB keepend
+syn match Identifier /\[\[[^\]|]*\]\]/
+syn match zimEltLinks /\[\[[^|]*|[^[\]|]*\]\]/ contains=zimEltUrlHiddenA,zimEltUrlHiddenB keepend
 syn match zimEltUrlHiddenA /\[\[[^|]*|/ contained conceal cchar=› transparent
 syn match zimEltUrlHiddenB /\]\]/ contained conceal cchar=¸ transparent
 try
@@ -128,9 +142,10 @@ fu! s:activate_codeblock()
   " generate by :read!%:p:h/getsourcesfiletype.py
   " the selection is reduced for optimisation and because some syntax files
   " break spell
+  "
   let l:languages = get(g:,'zim_codeblock_syntax',
-        \{"python": "python","sh": "sh","sourcecode": "sh",  "vim": "vim",
-        \ "html": "html", "css": "css", "xml": "xml",
+        \{"python": "python","sh": "sh", "vim": "vim",
+        \ "html": "html", "css": "css", "xml": "xml", "Diff": "diff",
         \ "javascript": "javascript", "sql": "sql"}
         \)
 
@@ -185,7 +200,9 @@ syn region zimwikiIndentedCheckboxDetails start=/^\z(\( \{4\}\|\t\)*\)\(\[[x*]\]
 syn region zimwikiIndentedDetails start=/^\S[^:{}[\]]* [^:{}[\]]*\(:.*\|\\\s*$\)\n\s*\S/ end=/^\( \{0,3\}\)\S/me=s-1 contains=zimElt.*,zimStyle.*,Title.* fold transparent
 "syn region zimIndentedfold start=/^\( \{4,\}\|\t\)\S/ end=/^\s\{0,3\}\S/me=s-1 contained fold transparent contains=zimElt.*,zimStyle.*
 "syn region zimwikiIndentedDetails start=/^\( \{4\}|\t\)*\(\[.\]\)\?[_a-z 0-9]*:/ end=/^\s\{0,3\}\S/me=s-1 contains=zimIndentedFold,zimElt.*,zimStyle.* transparent
-
+if get(g:,'ZimIncludeClassicFold', 1)
+  syn region zimwikiExplicitFold start=/^{{{.*/ end=/^}}}\S*$/ contains=zimElt.*,zimStyle.*,Title.* fold transparent
+endif
 "" --------------------
 " Finalize
 let b:current_syntax = "zim"

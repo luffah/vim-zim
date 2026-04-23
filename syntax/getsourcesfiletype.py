@@ -1,17 +1,20 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 
 from glob import glob
+# old
 try:
     import gtksourceview2
 except:
-    gtksourceview2 = None
+    # new
+    try:
+        from gi.repository import GtkSource as gtksourceview2
+    except:
+        gtksourceview2 = None
 
 
 if gtksourceview2:
     lm = gtksourceview2.LanguageManager()
     lang_ids = lm.get_language_ids()
-    lang_names = [lm.get_language(i).get_name() for i in lang_ids]
-
     LANGUAGES = dict((lm.get_language(i).get_name(), i) for i in lang_ids)
 else:
     LANGUAGES = {}
@@ -41,4 +44,4 @@ ret = []
 for (lzim, lvim) in [langsubst(l) for l in LANGUAGES]:
     if glob('/usr/share/vim/*/syntax/'+lvim+'.vim') :
         ret.append('"' + lzim + '" : "' + lvim +  '"')
-print "let g:zim_codeblock_syntax = { %s }" % "\n \\ ".join(ret)
+print("let g:zim_codeblock_syntax = { %s }" % "\n \\ ".join(ret))
